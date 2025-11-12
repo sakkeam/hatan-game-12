@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { EffectComposer, Vignette, Bloom, Noise, ChromaticAberration, DepthOfField, Glitch } from '@react-three/postprocessing';
 import { BlendFunction, GlitchMode } from 'postprocessing';
 import { Vector2 } from 'three';
@@ -42,6 +42,16 @@ export function Effects() {
   
   // Base chromatic aberration from fall speed
   const baseChromaOffset = 0.0005 + ((fallSpeed - 1.0) / 2.0) * 0.0015; // 0.0005 to 0.002
+  
+  // Memoize Vector2 instances to prevent recreating on every render
+  const chromaOffset = useMemo(
+    () => new Vector2(baseChromaOffset + chromaSpike, baseChromaOffset + chromaSpike),
+    [baseChromaOffset, chromaSpike]
+  );
+  
+  const glitchDelay = useMemo(() => new Vector2(0.5, 1.0), []);
+  const glitchDuration = useMemo(() => new Vector2(0.1, 0.3), []);
+  const glitchStrength = useMemo(() => new Vector2(0.3, 0.5), []);
   
   // Bloom intensity with subtle pulse
   const baseBloomIntensity = 0.4;
@@ -135,7 +145,7 @@ export function Effects() {
         {/* Increases with fall speed, spikes on rule changes */}
         <ChromaticAberration
           ref={chromaAberrationRef}
-          offset={new Vector2(baseChromaOffset + chromaSpike, baseChromaOffset + chromaSpike)}
+          offset={chromaOffset}
           blendFunction={BlendFunction.NORMAL}
         />
         
@@ -153,9 +163,9 @@ export function Effects() {
         {/* Glitch - Digital corruption on game over */}
         {glitchActive ? (
           <Glitch
-            delay={new Vector2(0.5, 1.0)}
-            duration={new Vector2(0.1, 0.3)}
-            strength={new Vector2(0.3, 0.5)}
+            delay={glitchDelay}
+            duration={glitchDuration}
+            strength={glitchStrength}
             mode={GlitchMode.SPORADIC}
             active={true}
             ratio={0.85}
