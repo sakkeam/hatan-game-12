@@ -39,6 +39,8 @@ export function useGameLoop() {
           correctVariation: state.correctVariation!,
           correctDirection: state.correctDirection!,
           wrongVariations: state.wrongVariations,
+          suggestedDirection: state.suggestedDirection!,
+          suggestedVariation: state.suggestedVariation!,
         };
         const item = createGameItem(variation, currentRule);
         spawnItem(item);
