@@ -13,6 +13,9 @@ export default function GameUI() {
   const score = useGameStore((state) => state.score);
   const activeItems = useGameStore((state) => state.activeItems);
   const gameOverMessage = useGameStore((state) => state.gameOverMessage);
+  const correctVariation = useGameStore((state) => state.correctVariation);
+  const correctDirection = useGameStore((state) => state.correctDirection);
+  const nextRuleChangeScore = useGameStore((state) => state.nextRuleChangeScore);
   const startGame = useGameStore((state) => state.startGame);
   const restartGame = useGameStore((state) => state.restartGame);
 
@@ -24,6 +27,23 @@ export default function GameUI() {
           <div className="text-4xl font-bold font-mono">{score}</div>
           <div className="text-sm text-gray-400 mt-1">
             {activeItems.length} / 10
+          </div>
+        </div>
+      )}
+
+      {/* Current Rule Display - Top Right */}
+      {gamePhase === 'playing' && correctVariation && correctDirection && (
+        <div className="absolute top-6 right-6 text-white pointer-events-none text-right">
+          <div className="text-xs text-gray-400 mb-1">正解</div>
+          <div className="text-3xl font-bold mb-2">{correctVariation}</div>
+          <div className="flex items-center justify-end gap-2">
+            <span className="text-sm text-gray-400">→</span>
+            <span className="text-2xl font-bold">
+              {correctDirection === 'left' ? '← 左' : '右 →'}
+            </span>
+          </div>
+          <div className="text-xs text-gray-500 mt-2">
+            次の変更: {nextRuleChangeScore}点
           </div>
         </div>
       )}
