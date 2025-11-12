@@ -166,8 +166,17 @@ export const useGameStore = create<GameState>()(
           draft.spawnInterval = calculateSpawnInterval(draft.score);
         });
         
-        // Check if rule should change
-        get().checkRuleChange();
+        // Change rule after every successful classification
+        const newRule = randomizeRule();
+        const newDuration = Math.max(MIN_RULE_DURATION, INITIAL_RULE_DURATION - Math.floor(get().score / 10) * 500);
+        const now = Date.now();
+        
+        set((draft) => {
+          draft.correctVariation = newRule.correctVariation;
+          draft.correctDirection = newRule.correctDirection;
+          draft.ruleDuration = newDuration;
+          draft.ruleChangeTime = now + newDuration;
+        });
         
         return ok(undefined);
       } else {
