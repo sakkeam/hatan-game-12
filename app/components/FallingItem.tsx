@@ -8,7 +8,7 @@
 
 import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text3D, Center } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import { RigidBody, type RapierRigidBody } from '@react-three/rapier';
 import type { GameItem } from '@/app/data/items';
 import type { Direction } from '@/app/game/rules';
@@ -68,26 +68,24 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
       restitution={0.3}
       friction={0.8}
     >
-      <Center>
-        <Text3D
-          ref={textRef}
-          font="/fonts/Noto_Sans_JP_Bold.json"
-          size={0.8}
-          height={0.2}
-          curveSegments={12}
-          bevelEnabled
-          bevelThickness={0.02}
-          bevelSize={0.02}
-          bevelSegments={5}
-        >
-          {item.text}
-          <meshStandardMaterial
-            color="#ffffff"
-            transparent={true}
-            opacity={opacity}
-          />
-        </Text3D>
-      </Center>
+      <mesh>
+        <boxGeometry args={[2, 1.2, 0.3]} />
+        <meshStandardMaterial visible={false} />
+      </mesh>
+      <Text
+        ref={textRef}
+        font="/Zen_Antique/ZenAntique-Regular.ttf"
+        fontSize={0.8}
+        color="#ffffff"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.08}
+        outlineColor="#000000"
+        fillOpacity={opacity}
+        outlineOpacity={opacity}
+      >
+        {item.text}
+      </Text>
     </RigidBody>
   );
 }
