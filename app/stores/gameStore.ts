@@ -146,17 +146,13 @@ export const useGameStore = create<GameState>()(
       console.log('=== Classification Debug ===');
       console.log('Item text:', item.text);
       console.log('Swipe direction:', direction);
-      console.log('Correct variation:', state.correctVariation);
-      console.log('Correct direction:', state.correctDirection);
+      console.log('Item rule (when spawned):', item.rule.correctVariation, item.rule.correctDirection);
+      console.log('Current rule:', state.correctVariation, state.correctDirection);
       
       const isCorrect = validateClassification(
         item.text,
         direction,
-        {
-          correctVariation: state.correctVariation!,
-          correctDirection: state.correctDirection!,
-          wrongVariations: state.wrongVariations,
-        }
+        item.rule // Use the rule from when the item was spawned
       );
       
       console.log('Is correct:', isCorrect);

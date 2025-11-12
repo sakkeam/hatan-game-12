@@ -34,8 +34,14 @@ export function useGameLoop() {
 
       // Subscribe to spawn events
       const subscription = spawnStreamRef.current.spawn$.subscribe(() => {
+        const state = useGameStore.getState();
         const variation = getRandomVariation();
-        const item = createGameItem(variation);
+        const currentRule = {
+          correctVariation: state.correctVariation!,
+          correctDirection: state.correctDirection!,
+          wrongVariations: state.wrongVariations,
+        };
+        const item = createGameItem(variation, currentRule);
         spawnItem(item);
       });
 
