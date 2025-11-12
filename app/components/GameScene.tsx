@@ -46,7 +46,7 @@ export default function GameScene() {
       ))}
       
       {/* Post-processing effects */}
-      {/* <Effects /> */}
+      <Effects />
     </>
   );
 }
