@@ -11,13 +11,8 @@ import GameUI from './components/GameUI';
 import SwipeHandler from './components/SwipeHandler';
 import GameLoop from './game/loop';
 
-// Dynamically import Canvas and GameScene to avoid SSR issues
-const Canvas = dynamic(
-  () => import('@react-three/fiber').then((mod) => mod.Canvas),
-  { ssr: false }
-);
-
-const GameScene = dynamic(() => import('./components/GameScene'), {
+// Dynamically import GameCanvas to avoid SSR serialization issues
+const GameCanvas = dynamic(() => import('./components/GameCanvas'), {
   ssr: false,
 });
 
@@ -25,11 +20,7 @@ export default function Home() {
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Three.js Canvas - Full screen portrait */}
-      <Canvas
-        className="absolute inset-0"
-      >
-        <GameScene />
-      </Canvas>
+      <GameCanvas />
 
       {/* UI Overlay */}
       <GameUI />
