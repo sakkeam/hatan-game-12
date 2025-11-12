@@ -30,11 +30,13 @@ export default function GameUI() {
           <div className="text-sm text-gray-400 mt-1">
             {activeItems.length} / 10
           </div>
-          {fallSpeed > 1.0 && (
-            <div className={`text-sm mt-2 font-bold ${fallSpeed >= 2.0 ? 'text-red-400 animate-pulse' : 'text-yellow-400'}`}>
-              速度 ×{fallSpeed.toFixed(1)}
-            </div>
-          )}
+          <div className={`text-sm mt-2 font-bold ${
+            fallSpeed >= 4.0 ? 'text-red-400 animate-pulse' : 
+            fallSpeed >= 2.5 ? 'text-orange-400' : 
+            'text-yellow-400'
+          }`}>
+            速度 ×{fallSpeed.toFixed(1)}
+          </div>
         </div>
       )}
 

@@ -76,7 +76,7 @@ export const useGameStore = create<GameState>()(
     ruleDuration: INITIAL_RULE_DURATION,
     spawnInterval: 2000,
     lastSpawnTime: 0,
-    fallSpeed: 1.0, // Initial fall speed multiplier
+    fallSpeed: 1.5, // Initial fall speed multiplier
 
     /**
      * Start a new game
@@ -100,7 +100,7 @@ export const useGameStore = create<GameState>()(
         state.ruleChangeTime = now + INITIAL_RULE_DURATION;
         state.spawnInterval = 2000;
         state.lastSpawnTime = now;
-        state.fallSpeed = 1.0;
+        state.fallSpeed = 1.5;
       });
     },
 
@@ -180,6 +180,7 @@ export const useGameStore = create<GameState>()(
           draft.activeItems.shift();
           draft.score += 1;
           draft.spawnInterval = calculateSpawnInterval(draft.score);
+          draft.fallSpeed = Math.min(5.0, 1.5 + Math.floor(draft.score / 20) * 0.3);
         });
         
         // Change rule immediately after successful classification
@@ -202,7 +203,7 @@ export const useGameStore = create<GameState>()(
         // Penalty: remove item but increase fall speed
         set((draft) => {
           draft.activeItems.shift();
-          draft.fallSpeed = Math.min(3.0, draft.fallSpeed + 0.2); // Increase up to 3x speed
+          draft.fallSpeed = Math.min(5.0, draft.fallSpeed + 0.3); // Increase up to 5x speed
         });
         
         return ok(undefined);
