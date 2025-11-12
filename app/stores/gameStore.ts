@@ -130,6 +130,13 @@ export const useGameStore = create<GameState>()(
       }
       
       const item = state.activeItems[0];
+      
+      console.log('=== Classification Debug ===');
+      console.log('Item text:', item.text);
+      console.log('Swipe direction:', direction);
+      console.log('Correct variation:', state.correctVariation);
+      console.log('Correct direction:', state.correctDirection);
+      
       const isCorrect = validateClassification(
         item.text,
         direction,
@@ -138,6 +145,9 @@ export const useGameStore = create<GameState>()(
           correctDirection: state.correctDirection!,
         }
       );
+      
+      console.log('Is correct:', isCorrect);
+      console.log('========================');
       
       if (isCorrect) {
         // Correct classification - remove item and increment score
