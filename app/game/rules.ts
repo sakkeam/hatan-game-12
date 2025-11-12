@@ -11,10 +11,12 @@ export type Direction = 'left' | 'right';
 export interface GameRule {
   correctVariation: ItemVariation;
   correctDirection: Direction;
+  wrongVariations: ItemVariation[]; // Specific wrong variations to classify
 }
 
 /**
  * Randomly select one variation and one direction as the "correct" answer
+ * Also select specific wrong variations that must be classified
  */
 export function randomizeRule(): GameRule {
   const randomVariation = ITEM_VARIATIONS[
@@ -23,9 +25,13 @@ export function randomizeRule(): GameRule {
   
   const randomDirection: Direction = Math.random() < 0.5 ? 'left' : 'right';
   
+  // Get wrong variations (all except the correct one)
+  const wrongVariations = ITEM_VARIATIONS.filter(v => v !== randomVariation);
+  
   return {
     correctVariation: randomVariation,
     correctDirection: randomDirection,
+    wrongVariations,
   };
 }
 
@@ -59,7 +65,8 @@ export function calculateSpawnInterval(score: number): number {
 /**
  * Validate if classification is correct based on current rule
  * - If item matches correctVariation, swipe in correctDirection
- * - If item doesn't match, swipe in opposite direction
+ * - If item is in wrongVariations, swipe in opposite direction
+ * - Items not spawned yet are ignored (this shouldn't happen in normal gameplay)
  */
 export function validateClassification(
   itemText: ItemVariation,
@@ -67,13 +74,17 @@ export function validateClassification(
   rule: GameRule
 ): boolean {
   const isCorrectVariation = itemText === rule.correctVariation;
+  const isWrongVariation = rule.wrongVariations.includes(itemText);
   
   if (isCorrectVariation) {
     // Correct variation should be swiped in the correct direction
     return swipeDirection === rule.correctDirection;
-  } else {
+  } else if (isWrongVariation) {
     // Wrong variation should be swiped in the opposite direction
     const oppositeDirection: Direction = rule.correctDirection === 'left' ? 'right' : 'left';
     return swipeDirection === oppositeDirection;
+  } else {
+    // This shouldn't happen - item not in current rule set
+    return false;
   }
 }
