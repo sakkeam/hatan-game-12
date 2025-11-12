@@ -69,15 +69,14 @@ export function getNextRuleChangeInterval(currentScore: number): number {
 
 /**
  * Calculate spawn interval in milliseconds based on current score
- * Formula: max(500, 2000 - floor(score/10) * 100)
+ * Formula: max(300, 1500 - floor(score/8) * 100)
  * 
- * Initial: 2000ms (2 seconds)
- * At score 10: 1900ms
- * At score 100: 1000ms
- * At score 150+: 500ms (minimum)
+ * Initial: 1500ms (1.5 seconds)
+ * At score 8: 1400ms
+ * At score 96: 300ms (minimum)
  */
 export function calculateSpawnInterval(score: number): number {
-  return Math.max(500, 2000 - Math.floor(score / 10) * 100);
+  return Math.max(300, 1500 - Math.floor(score / 8) * 100);
 }
 
 /**
