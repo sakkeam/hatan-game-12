@@ -13,7 +13,7 @@ import type { GameItem } from '@/app/data/items';
 import type { Direction } from '@/app/game/rules';
 
 const BOTTOM_Y = -2; // Bottom position where items stack
-const Y_OFFSET = 0.3; // Y-axis offset between stacked items
+const Y_OFFSET = 0.3; // Y-axis offset between stacked items (positive = upward)
 const FALL_SPEED = 0.03; // Speed of falling animation
 const SWIPE_SPEED = 0.15; // Speed of swipe-away animation
 const SWIPE_DISTANCE = 10; // How far items fly when swiped
@@ -29,9 +29,8 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
   const [isFalling, setIsFalling] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<Direction | null>(null);
   
-  // Calculate target Y position based on stack index (reverse order - higher index = higher position)
-  const reverseIndex = totalItems - 1 - stackIndex;
-  const targetY = BOTTOM_Y + (reverseIndex * Y_OFFSET);
+  // Calculate target Y position - stackIndex 0 is bottom, higher index goes up
+  const targetY = BOTTOM_Y + (stackIndex * Y_OFFSET);
   
   // Initialize position above screen
   useEffect(() => {
