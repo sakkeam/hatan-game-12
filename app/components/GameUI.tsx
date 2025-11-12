@@ -34,13 +34,22 @@ export default function GameUI() {
       {/* Current Rule Display - Top Right */}
       {gamePhase === 'playing' && correctVariation && correctDirection && (
         <div className="absolute top-6 right-6 text-white pointer-events-none text-right">
-          <div className="text-xs text-gray-400 mb-1">正解</div>
-          <div className="text-3xl font-bold mb-2">{correctVariation}</div>
-          <div className="flex items-center justify-end gap-2">
-            <span className="text-sm text-gray-400">→</span>
-            <span className="text-2xl font-bold">
-              {correctDirection === 'left' ? '← 左' : '右 →'}
-            </span>
+          <div className="text-xs text-gray-400 mb-1">正解ルール</div>
+          <div className="bg-blue-600 bg-opacity-80 px-4 py-2 rounded-lg mb-2">
+            <div className="text-2xl font-bold mb-1">{correctVariation}</div>
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-xl font-bold">
+                {correctDirection === 'left' ? '← 左' : '右 →'}
+              </span>
+            </div>
+          </div>
+          <div className="bg-red-600 bg-opacity-80 px-4 py-2 rounded-lg">
+            <div className="text-sm mb-1">それ以外</div>
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-xl font-bold">
+                {correctDirection === 'left' ? '右 →' : '← 左'}
+              </span>
+            </div>
           </div>
           <div className="text-xs text-gray-500 mt-2">
             次の変更: {nextRuleChangeScore}点

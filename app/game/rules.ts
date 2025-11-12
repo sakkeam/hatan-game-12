@@ -58,14 +58,22 @@ export function calculateSpawnInterval(score: number): number {
 
 /**
  * Validate if classification is correct based on current rule
+ * - If item matches correctVariation, swipe in correctDirection
+ * - If item doesn't match, swipe in opposite direction
  */
 export function validateClassification(
   itemText: ItemVariation,
   swipeDirection: Direction,
   rule: GameRule
 ): boolean {
-  return (
-    itemText === rule.correctVariation &&
-    swipeDirection === rule.correctDirection
-  );
+  const isCorrectVariation = itemText === rule.correctVariation;
+  
+  if (isCorrectVariation) {
+    // Correct variation should be swiped in the correct direction
+    return swipeDirection === rule.correctDirection;
+  } else {
+    // Wrong variation should be swiped in the opposite direction
+    const oppositeDirection: Direction = rule.correctDirection === 'left' ? 'right' : 'left';
+    return swipeDirection === oppositeDirection;
+  }
 }
