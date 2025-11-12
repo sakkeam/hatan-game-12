@@ -41,7 +41,6 @@ export interface GameState {
   nextRuleChangeScore: number;
   ruleChangeTime: number; // Timestamp when rule will change
   ruleDuration: number; // Duration in ms until next rule change
-  pendingRuleChange: boolean; // Flag to change rule on next spawn
   
   // Timing
   spawnInterval: number;
@@ -70,7 +69,6 @@ export const useGameStore = create<GameState>()(
     nextRuleChangeScore: 0,
     ruleChangeTime: 0,
     ruleDuration: INITIAL_RULE_DURATION,
-    pendingRuleChange: false,
     spawnInterval: 2000,
     lastSpawnTime: 0,
 
@@ -116,22 +114,6 @@ export const useGameStore = create<GameState>()(
       
       if (state.activeItems.length >= MAX_ITEMS) {
         return err('Maximum items reached');
-      }
-      
-      // Apply pending rule change before spawning
-      if (state.pendingRuleChange) {
-        const newRule = randomizeRule();
-        const newDuration = Math.max(MIN_RULE_DURATION, INITIAL_RULE_DURATION - Math.floor(state.score / 10) * 500);
-        const now = Date.now();
-        
-        set((draft) => {
-          draft.correctVariation = newRule.correctVariation;
-          draft.correctDirection = newRule.correctDirection;
-          draft.wrongVariations = newRule.wrongVariations;
-          draft.ruleDuration = newDuration;
-          draft.ruleChangeTime = now + newDuration;
-          draft.pendingRuleChange = false;
-        });
       }
       
       set((draft) => {
@@ -186,7 +168,19 @@ export const useGameStore = create<GameState>()(
           draft.activeItems.shift();
           draft.score += 1;
           draft.spawnInterval = calculateSpawnInterval(draft.score);
-          draft.pendingRuleChange = true; // Mark for rule change on next spawn
+        });
+        
+        // Change rule immediately after successful classification
+        const newRule = randomizeRule();
+        const newDuration = Math.max(MIN_RULE_DURATION, INITIAL_RULE_DURATION - Math.floor(get().score / 10) * 500);
+        const now = Date.now();
+        
+        set((draft) => {
+          draft.correctVariation = newRule.correctVariation;
+          draft.correctDirection = newRule.correctDirection;
+          draft.wrongVariations = newRule.wrongVariations;
+          draft.ruleDuration = newDuration;
+          draft.ruleChangeTime = now + newDuration;
         });
         
         return ok(undefined);
