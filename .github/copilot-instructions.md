@@ -32,9 +32,9 @@ The game will use a functional reactive architecture:
 ## Development Workflow
 
 ### Commands
-- `npm run dev` / `bun dev` - Start dev server (http://localhost:3000)
-- `npm run build` / `bun build` - Production build
-- `npm run lint` / `bun lint` - Run ESLint
+- `bun run dev` - Start dev server (http://localhost:3000)
+- `bun run build` - Production build
+- `bun run lint` - Run ESLint
 
 ### Path Aliases
 Use `@/*` for imports from the project root (configured in `tsconfig.json`):
