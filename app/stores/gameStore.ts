@@ -193,28 +193,12 @@ export const useGameStore = create<GameState>()(
     },
 
     /**
-     * Check if score has reached rule change threshold or timer expired
+     * Check if score has reached rule change threshold (backup mechanism)
      */
     checkRuleChange: () => {
       const state = get();
-      const now = Date.now();
       
-      // Check timer-based rule change
-      if (now >= state.ruleChangeTime) {
-        const newRule = randomizeRule();
-        // Decrease duration based on score (faster changes at higher scores)
-        const newDuration = Math.max(MIN_RULE_DURATION, INITIAL_RULE_DURATION - Math.floor(state.score / 10) * 500);
-        
-        set((draft) => {
-          draft.correctVariation = newRule.correctVariation;
-          draft.correctDirection = newRule.correctDirection;
-          draft.wrongVariations = newRule.wrongVariations;
-          draft.ruleDuration = newDuration;
-          draft.ruleChangeTime = now + newDuration;
-        });
-      }
-      
-      // Also check score-based rule change (kept for backwards compatibility)
+      // Only score-based rule change as backup
       if (state.score >= state.nextRuleChangeScore) {
         const newRule = randomizeRule();
         const newInterval = getNextRuleChangeInterval(state.score);

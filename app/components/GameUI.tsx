@@ -7,7 +7,6 @@
 'use client';
 
 import { useGameStore } from '@/app/stores/gameStore';
-import { useEffect, useState } from 'react';
 
 export default function GameUI() {
   const gamePhase = useGameStore((state) => state.gamePhase);
@@ -16,26 +15,8 @@ export default function GameUI() {
   const gameOverMessage = useGameStore((state) => state.gameOverMessage);
   const correctVariation = useGameStore((state) => state.correctVariation);
   const correctDirection = useGameStore((state) => state.correctDirection);
-  const nextRuleChangeScore = useGameStore((state) => state.nextRuleChangeScore);
-  const ruleChangeTime = useGameStore((state) => state.ruleChangeTime);
   const startGame = useGameStore((state) => state.startGame);
   const restartGame = useGameStore((state) => state.restartGame);
-
-  const [countdown, setCountdown] = useState(0);
-
-  // Update countdown every 100ms
-  useEffect(() => {
-    if (gamePhase !== 'playing') return;
-
-    const interval = setInterval(() => {
-      const remaining = Math.max(0, ruleChangeTime - Date.now());
-      setCountdown(remaining);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [gamePhase, ruleChangeTime]);
-
-  const countdownSeconds = (countdown / 1000).toFixed(1);
 
   return (
     <div className="absolute inset-0 pointer-events-none">
@@ -52,11 +33,7 @@ export default function GameUI() {
       {/* Current Rule Display - Top Right */}
       {gamePhase === 'playing' && correctVariation && correctDirection && (
         <div className="absolute top-6 right-6 text-white pointer-events-none text-right">
-          <div className="flex items-center justify-end gap-2 mb-2">
-            <div className={`text-2xl font-bold font-mono ${countdown < 3000 ? 'text-red-400 animate-pulse' : 'text-yellow-400'}`}>
-              {countdownSeconds}s
-            </div>
-          </div>
+          <div className="text-xs text-gray-400 mb-2">降ってくる破綻</div>
           <div className="bg-blue-600 bg-opacity-80 px-4 py-2 rounded-lg mb-2">
             <div className="text-2xl font-bold mb-1">{correctVariation}</div>
             <div className="flex items-center justify-end gap-2">

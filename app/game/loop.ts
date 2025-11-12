@@ -18,10 +18,8 @@ export function useGameLoop() {
   const gamePhase = useGameStore((state) => state.gamePhase);
   const spawnInterval = useGameStore((state) => state.spawnInterval);
   const spawnItem = useGameStore((state) => state.spawnItem);
-  const checkRuleChange = useGameStore((state) => state.checkRuleChange);
   
   const spawnStreamRef = useRef<ReturnType<typeof createSpawnStream> | null>(null);
-  const ruleCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (gamePhase === 'playing') {
@@ -35,7 +33,8 @@ export function useGameLoop() {
       // Subscribe to spawn events
       const subscription = spawnStreamRef.current.spawn$.subscribe(() => {
         const state = useGameStore.getState();
-        const variation = getRandomVariation();
+        // Always spawn the correct variation
+        const variation = state.correctVariation!;
         const currentRule = {
           correctVariation: state.correctVariation!,
           correctDirection: state.correctDirection!,
@@ -48,18 +47,10 @@ export function useGameLoop() {
       // Start spawning
       spawnStreamRef.current.start();
 
-      // Check rule change every 100ms for smooth countdown
-      ruleCheckIntervalRef.current = setInterval(() => {
-        checkRuleChange();
-      }, 100);
-
       return () => {
         subscription.unsubscribe();
         if (spawnStreamRef.current) {
           spawnStreamRef.current.stop();
-        }
-        if (ruleCheckIntervalRef.current) {
-          clearInterval(ruleCheckIntervalRef.current);
         }
       };
     } else {
@@ -67,11 +58,8 @@ export function useGameLoop() {
       if (spawnStreamRef.current) {
         spawnStreamRef.current.stop();
       }
-      if (ruleCheckIntervalRef.current) {
-        clearInterval(ruleCheckIntervalRef.current);
-      }
     }
-  }, [gamePhase, spawnInterval, spawnItem, checkRuleChange]);
+  }, [gamePhase, spawnInterval, spawnItem]);
 }
 
 /**
