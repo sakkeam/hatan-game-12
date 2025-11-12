@@ -6,15 +6,10 @@
 
 'use client';
 
-import dynamic from 'next/dynamic';
+import GameCanvas from './components/GameCanvas';
 import GameUI from './components/GameUI';
 import SwipeHandler from './components/SwipeHandler';
 import GameLoop from './game/loop';
-
-// Dynamically import GameCanvas to avoid SSR serialization issues
-const GameCanvas = dynamic(() => import('./components/GameCanvas'), {
-  ssr: false,
-});
 
 export default function Home() {
   return (

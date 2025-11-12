@@ -6,10 +6,9 @@
 
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { EffectComposer, Vignette, Bloom, Noise, ChromaticAberration, DepthOfField, Glitch } from '@react-three/postprocessing';
 import { BlendFunction, GlitchMode } from 'postprocessing';
-import { Vector2 } from 'three';
 import { useGameStore, type GamePhase } from '@/app/stores/gameStore';
 
 export function Effects() {
@@ -44,18 +43,7 @@ export function Effects() {
   const baseChromaOffset = 0.0005 + ((fallSpeed - 1.0) / 2.0) * 0.0015; // 0.0005 to 0.002
   
   // Calculate final chroma offset values
-  const chromaOffsetX = baseChromaOffset + chromaSpike;
-  const chromaOffsetY = baseChromaOffset + chromaSpike;
-  
-  // Memoize Vector2 instances to prevent recreating on every render
-  const chromaOffset = useMemo(
-    () => new Vector2(chromaOffsetX, chromaOffsetY),
-    [chromaOffsetX, chromaOffsetY]
-  );
-  
-  const glitchDelay = useMemo(() => new Vector2(0.5, 1.0), []);
-  const glitchDuration = useMemo(() => new Vector2(0.1, 0.3), []);
-  const glitchStrength = useMemo(() => new Vector2(0.3, 0.5), []);
+  const chromaOffsetValue = baseChromaOffset + chromaSpike;
   
   // Bloom intensity with subtle pulse
   const baseBloomIntensity = 0.4;
@@ -149,7 +137,7 @@ export function Effects() {
         {/* Increases with fall speed, spikes on rule changes */}
         <ChromaticAberration
           ref={chromaAberrationRef}
-          offset={chromaOffset}
+          offset={[chromaOffsetValue, chromaOffsetValue] as any}
           blendFunction={BlendFunction.NORMAL}
         />
         
@@ -167,9 +155,9 @@ export function Effects() {
         {/* Glitch - Digital corruption on game over */}
         {glitchActive ? (
           <Glitch
-            delay={glitchDelay}
-            duration={glitchDuration}
-            strength={glitchStrength}
+            delay={[0.5, 1.0] as any}
+            duration={[0.1, 0.3] as any}
+            strength={[0.3, 0.5] as any}
             mode={GlitchMode.SPORADIC}
             active={true}
             ratio={0.85}
