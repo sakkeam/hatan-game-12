@@ -38,6 +38,8 @@ export interface GameState {
   correctVariation: ItemVariation | null;
   correctDirection: Direction | null;
   wrongVariations: ItemVariation[];
+  suggestedDirection: 'left' | 'right' | null;
+  suggestedVariation: ItemVariation | null;
   nextRuleChangeScore: number;
   ruleChangeTime: number; // Timestamp when rule will change
   ruleDuration: number; // Duration in ms until next rule change
@@ -67,6 +69,8 @@ export const useGameStore = create<GameState>()(
     correctVariation: null,
     correctDirection: null,
     wrongVariations: [],
+    suggestedDirection: null,
+    suggestedVariation: null,
     nextRuleChangeScore: 0,
     ruleChangeTime: 0,
     ruleDuration: INITIAL_RULE_DURATION,
@@ -89,6 +93,8 @@ export const useGameStore = create<GameState>()(
         state.correctVariation = rule.correctVariation;
         state.correctDirection = rule.correctDirection;
         state.wrongVariations = rule.wrongVariations;
+        state.suggestedDirection = rule.suggestedDirection;
+        state.suggestedVariation = rule.suggestedVariation;
         state.nextRuleChangeScore = getNextRuleChangeInterval(0);
         state.ruleDuration = INITIAL_RULE_DURATION;
         state.ruleChangeTime = now + INITIAL_RULE_DURATION;
@@ -185,6 +191,8 @@ export const useGameStore = create<GameState>()(
           draft.correctVariation = newRule.correctVariation;
           draft.correctDirection = newRule.correctDirection;
           draft.wrongVariations = newRule.wrongVariations;
+          draft.suggestedDirection = newRule.suggestedDirection;
+          draft.suggestedVariation = newRule.suggestedVariation;
           draft.ruleDuration = newDuration;
           draft.ruleChangeTime = now + newDuration;
         });
@@ -227,6 +235,8 @@ export const useGameStore = create<GameState>()(
           draft.correctVariation = newRule.correctVariation;
           draft.correctDirection = newRule.correctDirection;
           draft.wrongVariations = newRule.wrongVariations;
+          draft.suggestedDirection = newRule.suggestedDirection;
+          draft.suggestedVariation = newRule.suggestedVariation;
           draft.nextRuleChangeScore = state.score + newInterval;
           draft.ruleDuration = newDuration;
           draft.ruleChangeTime = now + newDuration;

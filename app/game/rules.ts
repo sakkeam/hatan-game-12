@@ -11,27 +11,45 @@ export type Direction = 'left' | 'right' | 'suggest';
 export interface GameRule {
   correctVariation: ItemVariation;
   correctDirection: Direction;
-  wrongVariations: ItemVariation[]; // Specific wrong variations to classify
+  wrongVariations: ItemVariation[];
+  suggestedDirection: 'left' | 'right'; // Randomly selected wrong option
+  suggestedVariation: ItemVariation; // Randomly selected wrong variation
 }
 
 /**
  * Randomly select one variation and one direction as the "correct" answer
  * Also select specific wrong variations that must be classified
+ * Generate a random suggestion (one of the two wrong options)
  */
 export function randomizeRule(): GameRule {
   const randomVariation = ITEM_VARIATIONS[
     Math.floor(Math.random() * ITEM_VARIATIONS.length)
   ];
   
-  const randomDirection: Direction = Math.random() < 0.5 ? 'left' : 'right';
+  const randomDirection: 'left' | 'right' = Math.random() < 0.5 ? 'left' : 'right';
   
   // Get wrong variations (all except the correct one)
   const wrongVariations = ITEM_VARIATIONS.filter(v => v !== randomVariation);
+  
+  // Generate suggestion: randomly pick one of two wrong options
+  // Option 1: wrong variation + correct direction
+  // Option 2: correct variation + wrong direction
+  const useWrongVariation = Math.random() < 0.5;
+  
+  const suggestedVariation = useWrongVariation 
+    ? wrongVariations[Math.floor(Math.random() * wrongVariations.length)]
+    : randomVariation;
+    
+  const suggestedDirection: 'left' | 'right' = useWrongVariation
+    ? randomDirection
+    : (randomDirection === 'left' ? 'right' : 'left');
   
   return {
     correctVariation: randomVariation,
     correctDirection: randomDirection,
     wrongVariations,
+    suggestedDirection,
+    suggestedVariation,
   };
 }
 
@@ -66,7 +84,7 @@ export function calculateSpawnInterval(score: number): number {
  * Validate if classification is correct based on current rule
  * - If item matches correctVariation, swipe in correctDirection
  * - If item is in wrongVariations, swipe in opposite direction
- * - 'suggest' always classifies correctly based on the rule
+ * - 'suggest' is treated as wrong (uses suggestedDirection with suggestedVariation)
  */
 export function validateClassification(
   itemText: ItemVariation,
@@ -76,9 +94,10 @@ export function validateClassification(
   const isCorrectVariation = itemText === rule.correctVariation;
   const isWrongVariation = rule.wrongVariations.includes(itemText);
   
-  // Handle 'suggest' - always correct
+  // Handle 'suggest' - this is always wrong by design
   if (swipeDirection === 'suggest') {
-    return true;
+    // Suggest uses the suggested wrong option, so it's never correct
+    return false;
   }
   
   if (isCorrectVariation) {
@@ -86,7 +105,7 @@ export function validateClassification(
     return swipeDirection === rule.correctDirection;
   } else if (isWrongVariation) {
     // Wrong variation should be swiped in the opposite direction
-    const oppositeDirection: Direction = rule.correctDirection === 'left' ? 'right' : 'left';
+    const oppositeDirection: 'left' | 'right' = rule.correctDirection === 'left' ? 'right' : 'left';
     return swipeDirection === oppositeDirection;
   } else {
     // This shouldn't happen - item not in current rule set

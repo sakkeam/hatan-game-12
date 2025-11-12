@@ -15,6 +15,8 @@ export default function GameUI() {
   const gameOverMessage = useGameStore((state) => state.gameOverMessage);
   const correctVariation = useGameStore((state) => state.correctVariation);
   const correctDirection = useGameStore((state) => state.correctDirection);
+  const suggestedDirection = useGameStore((state) => state.suggestedDirection);
+  const suggestedVariation = useGameStore((state) => state.suggestedVariation);
   const fallSpeed = useGameStore((state) => state.fallSpeed);
   const startGame = useGameStore((state) => state.startGame);
   const restartGame = useGameStore((state) => state.restartGame);
@@ -57,9 +59,12 @@ export default function GameUI() {
             </div>
           </div>
           <div className="bg-green-600 bg-opacity-80 px-4 py-2 rounded-lg mt-2">
-            <div className="text-sm mb-1">提案（自動）</div>
+            <div className="text-xs text-gray-400 mb-1">提案（不正解）</div>
+            <div className="text-2xl font-bold mb-1">{suggestedVariation}</div>
             <div className="flex items-center justify-end gap-2">
-              <span className="text-xl font-bold">↑ 上</span>
+              <span className="text-xl font-bold">
+                {suggestedDirection === 'left' ? '← 左' : '右 →'}
+              </span>
             </div>
           </div>
         </div>
