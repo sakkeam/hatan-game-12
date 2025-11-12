@@ -28,9 +28,9 @@ export default function GameScene() {
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        position={[0, 8, 12]}
-        fov={60}
-        rotation={[-Math.PI / 4, 0, 0]}
+        position={[0, 12, 10]}
+        fov={50}
+        rotation={[-Math.PI / 3, 0, 0]}
       />
 
       {/* Ambient lighting */}
