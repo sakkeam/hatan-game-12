@@ -29,6 +29,8 @@ export interface GameState {
   gamePhase: GamePhase;
   score: number;
   activeItems: GameItem[];
+  swipedItemId: string | null; // ID of item being swiped away
+  swipeDirection: Direction | null; // Direction of current swipe
   
   // Game over info
   gameOverReason: GameOverReason;
@@ -47,7 +49,6 @@ export interface GameState {
   // Timing
   spawnInterval: number;
   lastSpawnTime: number;
-  fallSpeed: number; // Speed multiplier for falling items
   
   // Actions
   startGame: () => void;
@@ -64,6 +65,8 @@ export const useGameStore = create<GameState>()(
     gamePhase: 'start',
     score: 0,
     activeItems: [],
+    swipedItemId: null,
+    swipeDirection: null,
     gameOverReason: null,
     gameOverMessage: '',
     correctVariation: null,
@@ -76,7 +79,6 @@ export const useGameStore = create<GameState>()(
     ruleDuration: INITIAL_RULE_DURATION,
     spawnInterval: 2000,
     lastSpawnTime: 0,
-    fallSpeed: 1.5, // Initial fall speed multiplier
 
     /**
      * Start a new game
@@ -88,6 +90,8 @@ export const useGameStore = create<GameState>()(
         state.gamePhase = 'playing';
         state.score = 0;
         state.activeItems = [];
+        state.swipedItemId = null;
+        state.swipeDirection = null;
         state.gameOverReason = null;
         state.gameOverMessage = '';
         state.correctVariation = rule.correctVariation;
@@ -100,7 +104,6 @@ export const useGameStore = create<GameState>()(
         state.ruleChangeTime = now + INITIAL_RULE_DURATION;
         state.spawnInterval = 2000;
         state.lastSpawnTime = now;
-        state.fallSpeed = 1.5;
       });
     },
 
@@ -175,13 +178,22 @@ export const useGameStore = create<GameState>()(
       console.log('========================');
       
       if (isCorrect) {
-        // Correct classification - remove item and increment score
+        // Correct classification - trigger swipe animation then remove item
         set((draft) => {
-          draft.activeItems.shift();
-          draft.score += 1;
-          draft.spawnInterval = calculateSpawnInterval(draft.score);
-          draft.fallSpeed = Math.min(5.0, 1.5 + Math.floor(draft.score / 20) * 0.3);
+          draft.swipedItemId = item.id;
+          draft.swipeDirection = direction;
         });
+        
+        // Remove item after brief delay for animation
+        setTimeout(() => {
+          set((draft) => {
+            draft.activeItems.shift();
+            draft.score += 1;
+            draft.spawnInterval = calculateSpawnInterval(draft.score);
+            draft.swipedItemId = null;
+            draft.swipeDirection = null;
+          });
+        }, 100);
         
         // Change rule immediately after successful classification
         const newRule = randomizeRule();
@@ -200,11 +212,19 @@ export const useGameStore = create<GameState>()(
         
         return ok(undefined);
       } else if (isPenalty) {
-        // Penalty: remove item but increase fall speed
+        // Penalty: trigger swipe animation then remove item
         set((draft) => {
-          draft.activeItems.shift();
-          draft.fallSpeed = Math.min(5.0, draft.fallSpeed + 0.3); // Increase up to 5x speed
+          draft.swipedItemId = item.id;
+          draft.swipeDirection = direction;
         });
+        
+        setTimeout(() => {
+          set((draft) => {
+            draft.activeItems.shift();
+            draft.swipedItemId = null;
+            draft.swipeDirection = null;
+          });
+        }, 100);
         
         return ok(undefined);
       } else {

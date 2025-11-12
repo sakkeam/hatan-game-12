@@ -17,7 +17,6 @@ export default function GameUI() {
   const correctDirection = useGameStore((state) => state.correctDirection);
   const suggestedDirection = useGameStore((state) => state.suggestedDirection);
   const suggestedVariation = useGameStore((state) => state.suggestedVariation);
-  const fallSpeed = useGameStore((state) => state.fallSpeed);
   const startGame = useGameStore((state) => state.startGame);
   const restartGame = useGameStore((state) => state.restartGame);
 
@@ -29,13 +28,6 @@ export default function GameUI() {
           <div className="text-4xl font-bold font-mono">{score}</div>
           <div className="text-sm text-gray-400 mt-1">
             {activeItems.length} / 10
-          </div>
-          <div className={`text-sm mt-2 font-bold ${
-            fallSpeed >= 4.0 ? 'text-red-400 animate-pulse' : 
-            fallSpeed >= 2.5 ? 'text-orange-400' : 
-            'text-yellow-400'
-          }`}>
-            速度 ×{fallSpeed.toFixed(1)}
           </div>
         </div>
       )}

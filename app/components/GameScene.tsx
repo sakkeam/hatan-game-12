@@ -8,7 +8,8 @@
 
 import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { OrthographicCamera } from '@react-three/drei';
+import { PerspectiveCamera } from '@react-three/drei';
+import { Physics, RigidBody } from '@react-three/rapier';
 import { useGameStore } from '@/app/stores/gameStore';
 import FallingItem from './FallingItem';
 import { Effects } from './Effects';
@@ -23,27 +24,39 @@ export default function GameScene() {
 
   return (
     <>
-      {/* Orthographic camera for 2D-like view */}
-      <OrthographicCamera
+      {/* Perspective camera for 3D mountain view */}
+      <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        position={[0, 0, 10]}
-        zoom={50}
+        position={[0, 4, 18]}
+        fov={50}
+        rotation={[-Math.PI / 12, 0, 0]}
       />
 
       {/* Ambient lighting */}
       <ambientLight intensity={1.5} />
-      <directionalLight position={[0, 0, 10]} intensity={1.0} />
+      <directionalLight position={[5, 10, 5]} intensity={1.0} />
 
-      {/* Render all active items with stacking */}
-      {activeItems.map((item, index) => (
-        <FallingItem
-          key={item.id}
-          item={item}
-          stackIndex={index}
-          totalItems={activeItems.length}
-        />
-      ))}
+      {/* Physics simulation */}
+      <Physics gravity={[0, -9.81, 0]}>
+        {/* Ground plane for mountain base */}
+        <RigidBody type="fixed" colliders="cuboid">
+          <mesh position={[0, -0.5, 0]} receiveShadow>
+            <boxGeometry args={[20, 1, 20]} />
+            <meshStandardMaterial color="#1a1a1a" />
+          </mesh>
+        </RigidBody>
+
+        {/* Render all active items with physics */}
+        {activeItems.map((item, index) => (
+          <FallingItem
+            key={item.id}
+            item={item}
+            stackIndex={index}
+            totalItems={activeItems.length}
+          />
+        ))}
+      </Physics>
       
       {/* Post-processing effects */}
       <Effects />
