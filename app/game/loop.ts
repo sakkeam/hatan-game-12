@@ -33,8 +33,8 @@ export function useGameLoop() {
       // Subscribe to spawn events
       const subscription = spawnStreamRef.current.spawn$.subscribe(() => {
         const state = useGameStore.getState();
-        // Always spawn the correct variation
-        const variation = state.correctVariation!;
+        // Spawn random variation
+        const variation = getRandomVariation();
         const currentRule = {
           correctVariation: state.correctVariation!,
           correctDirection: state.correctDirection!,

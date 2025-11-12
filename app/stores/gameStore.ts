@@ -45,6 +45,7 @@ export interface GameState {
   // Timing
   spawnInterval: number;
   lastSpawnTime: number;
+  fallSpeed: number; // Speed multiplier for falling items
   
   // Actions
   startGame: () => void;
@@ -71,6 +72,7 @@ export const useGameStore = create<GameState>()(
     ruleDuration: INITIAL_RULE_DURATION,
     spawnInterval: 2000,
     lastSpawnTime: 0,
+    fallSpeed: 1.0, // Initial fall speed multiplier
 
     /**
      * Start a new game
@@ -92,6 +94,7 @@ export const useGameStore = create<GameState>()(
         state.ruleChangeTime = now + INITIAL_RULE_DURATION;
         state.spawnInterval = 2000;
         state.lastSpawnTime = now;
+        state.fallSpeed = 1.0;
       });
     },
 
@@ -156,6 +159,13 @@ export const useGameStore = create<GameState>()(
       );
       
       console.log('Is correct:', isCorrect);
+      
+      // Check if this is a wrong item in wrong direction (penalty case)
+      const isWrongItem = item.text !== item.rule.correctVariation;
+      const correctDirectionForWrongItem = item.rule.correctDirection === 'left' ? 'right' : 'left';
+      const isPenalty = isWrongItem && direction !== correctDirectionForWrongItem;
+      
+      console.log('Is penalty case:', isPenalty);
       console.log('========================');
       
       if (isCorrect) {
@@ -177,6 +187,14 @@ export const useGameStore = create<GameState>()(
           draft.wrongVariations = newRule.wrongVariations;
           draft.ruleDuration = newDuration;
           draft.ruleChangeTime = now + newDuration;
+        });
+        
+        return ok(undefined);
+      } else if (isPenalty) {
+        // Penalty: remove item but increase fall speed
+        set((draft) => {
+          draft.activeItems.shift();
+          draft.fallSpeed = Math.min(3.0, draft.fallSpeed + 0.2); // Increase up to 3x speed
         });
         
         return ok(undefined);

@@ -15,6 +15,7 @@ export default function GameUI() {
   const gameOverMessage = useGameStore((state) => state.gameOverMessage);
   const correctVariation = useGameStore((state) => state.correctVariation);
   const correctDirection = useGameStore((state) => state.correctDirection);
+  const fallSpeed = useGameStore((state) => state.fallSpeed);
   const startGame = useGameStore((state) => state.startGame);
   const restartGame = useGameStore((state) => state.restartGame);
 
@@ -27,13 +28,18 @@ export default function GameUI() {
           <div className="text-sm text-gray-400 mt-1">
             {activeItems.length} / 10
           </div>
+          {fallSpeed > 1.0 && (
+            <div className={`text-sm mt-2 font-bold ${fallSpeed >= 2.0 ? 'text-red-400 animate-pulse' : 'text-yellow-400'}`}>
+              速度 ×{fallSpeed.toFixed(1)}
+            </div>
+          )}
         </div>
       )}
 
       {/* Current Rule Display - Top Right */}
       {gamePhase === 'playing' && correctVariation && correctDirection && (
         <div className="absolute top-6 right-6 text-white pointer-events-none text-right">
-          <div className="text-xs text-gray-400 mb-2">降ってくる破綻</div>
+          <div className="text-xs text-gray-400 mb-2">正解ルール</div>
           <div className="bg-blue-600 bg-opacity-80 px-4 py-2 rounded-lg mb-2">
             <div className="text-2xl font-bold mb-1">{correctVariation}</div>
             <div className="flex items-center justify-end gap-2">

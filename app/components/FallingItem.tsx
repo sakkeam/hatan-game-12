@@ -11,10 +11,11 @@ import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import type { GameItem } from '@/app/data/items';
 import type { Direction } from '@/app/game/rules';
+import { useGameStore } from '@/app/stores/gameStore';
 
 const BOTTOM_Y = -2; // Bottom position where items stack
 const Y_OFFSET = 0.3; // Y-axis offset between stacked items (positive = upward)
-const FALL_SPEED = 0.03; // Speed of falling animation
+const BASE_FALL_SPEED = 0.03; // Base speed of falling animation
 const SWIPE_SPEED = 0.15; // Speed of swipe-away animation
 const SWIPE_DISTANCE = 10; // How far items fly when swiped
 
@@ -28,6 +29,7 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
   const meshRef = useRef<any>(null);
   const [isFalling, setIsFalling] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<Direction | null>(null);
+  const fallSpeed = useGameStore((state) => state.fallSpeed);
   
   // Calculate target Y position - stackIndex 0 is bottom, higher index goes up
   const targetY = BOTTOM_Y + (stackIndex * Y_OFFSET);
@@ -63,7 +65,7 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
       const currentY = meshRef.current.position.y;
       
       if (currentY > targetY) {
-        meshRef.current.position.y -= FALL_SPEED;
+        meshRef.current.position.y -= BASE_FALL_SPEED * fallSpeed;
       } else {
         meshRef.current.position.y = targetY;
         setIsFalling(false);
