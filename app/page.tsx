@@ -28,7 +28,6 @@ export default function Home() {
       >
         <GameScene />
       </Canvas>
-      </Canvas>
 
       {/* UI Overlay */}
       <GameUI />
