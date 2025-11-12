@@ -8,7 +8,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '@/app/stores/gameStore';
-import { swipeEvent$, createKeyboardStream } from '@/app/game/streams';
+import { swipeEvent$ } from '@/app/game/streams';
 import type { Direction } from '@/app/game/rules';
 
 const SWIPE_THRESHOLD = 50; // Minimum pixels for swipe detection
@@ -23,10 +23,25 @@ export default function SwipeHandler() {
     if (gamePhase !== 'playing') return;
 
     // Handle keyboard input
-    const keyboardSub = createKeyboardStream().subscribe((direction) => {
-      swipeEvent$.next(direction);
-      classifyItem(direction);
-    });
+    const handleKeyDown = (e: KeyboardEvent) => {
+      let direction: Direction | null = null;
+      
+      if (e.key === 'ArrowLeft') {
+        direction = 'left';
+      } else if (e.key === 'ArrowRight') {
+        direction = 'right';
+      } else if (e.key === 'ArrowUp' || e.key === ' ') {
+        direction = 'suggest';
+        e.preventDefault(); // Prevent space from scrolling
+      }
+      
+      if (direction) {
+        swipeEvent$.next(direction);
+        classifyItem(direction);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
 
     // Handle touch start
     const handleTouchStart = (e: TouchEvent) => {
@@ -42,9 +57,20 @@ export default function SwipeHandler() {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
 
-      // Check if horizontal swipe exceeds threshold
-      if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
-        const direction: Direction = deltaX > 0 ? 'right' : 'left';
+      let direction: Direction | null = null;
+
+      // Check for vertical swipe (up = suggest)
+      if (Math.abs(deltaY) > SWIPE_THRESHOLD && Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (deltaY < 0) { // Swipe up
+          direction = 'suggest';
+        }
+      }
+      // Check for horizontal swipe
+      else if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
+        direction = deltaX > 0 ? 'right' : 'left';
+      }
+
+      if (direction) {
         swipeEvent$.next(direction);
         classifyItem(direction);
       }
@@ -63,7 +89,7 @@ export default function SwipeHandler() {
     window.addEventListener('touchcancel', handleTouchCancel, { passive: true });
 
     return () => {
-      keyboardSub.unsubscribe();
+      window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
       window.removeEventListener('touchcancel', handleTouchCancel);

@@ -56,6 +56,12 @@ export default function GameUI() {
               </span>
             </div>
           </div>
+          <div className="bg-green-600 bg-opacity-80 px-4 py-2 rounded-lg mt-2">
+            <div className="text-sm mb-1">提案（自動）</div>
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-xl font-bold">↑ 上</span>
+            </div>
+          </div>
         </div>
       )}
 
@@ -83,8 +89,9 @@ export default function GameUI() {
             タップして開始
           </button>
           <div className="absolute bottom-12 text-center text-gray-500 text-sm">
-            <p>スワイプまたは矢印キーで分類</p>
-            <p className="text-xs mt-2">← 左 | 右 →</p>
+            <p>スワイプまたはキーで分類</p>
+            <p className="text-xs mt-2">← 左 | ↑ 提案 | 右 →</p>
+            <p className="text-xs mt-1">スペースキー: 提案</p>
           </div>
         </div>
       )}

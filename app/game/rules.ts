@@ -6,7 +6,7 @@
 
 import { ITEM_VARIATIONS, type ItemVariation } from '@/app/data/items';
 
-export type Direction = 'left' | 'right';
+export type Direction = 'left' | 'right' | 'suggest';
 
 export interface GameRule {
   correctVariation: ItemVariation;
@@ -66,7 +66,7 @@ export function calculateSpawnInterval(score: number): number {
  * Validate if classification is correct based on current rule
  * - If item matches correctVariation, swipe in correctDirection
  * - If item is in wrongVariations, swipe in opposite direction
- * - Items not spawned yet are ignored (this shouldn't happen in normal gameplay)
+ * - 'suggest' always classifies correctly based on the rule
  */
 export function validateClassification(
   itemText: ItemVariation,
@@ -75,6 +75,11 @@ export function validateClassification(
 ): boolean {
   const isCorrectVariation = itemText === rule.correctVariation;
   const isWrongVariation = rule.wrongVariations.includes(itemText);
+  
+  // Handle 'suggest' - always correct
+  if (swipeDirection === 'suggest') {
+    return true;
+  }
   
   if (isCorrectVariation) {
     // Correct variation should be swiped in the correct direction
