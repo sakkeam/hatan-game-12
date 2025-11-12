@@ -11,6 +11,7 @@ import { useFrame } from '@react-three/fiber';
 import { OrthographicCamera } from '@react-three/drei';
 import { useGameStore } from '@/app/stores/gameStore';
 import FallingItem from './FallingItem';
+import { Effects } from './Effects';
 
 export default function GameScene() {
   const activeItems = useGameStore((state) => state.activeItems);
@@ -43,6 +44,9 @@ export default function GameScene() {
           totalItems={activeItems.length}
         />
       ))}
+      
+      {/* Post-processing effects */}
+      <Effects />
     </>
   );
 }

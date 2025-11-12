@@ -29,7 +29,7 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
   const meshRef = useRef<any>(null);
   const [isFalling, setIsFalling] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<Direction | null>(null);
-  const fallSpeed = useGameStore((state) => state.fallSpeed);
+  const fallSpeed = useGameStore((state) => state.fallSpeed) as number;
   
   // Calculate target Y position - stackIndex 0 is bottom, higher index goes up
   const targetY = BOTTOM_Y + (stackIndex * Y_OFFSET);

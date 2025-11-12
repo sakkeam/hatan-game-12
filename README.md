@@ -1,5 +1,35 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## はたんゲーム 12 (Hatan Game 12)
+
+A mobile-first classification game built with Next.js 16, React 19, and React Three Fiber.
+
+**Theme**: Categorize different types of "failures/breakdowns" (破綻) by swiping left or right.
+
+**Target Platform**: Smartphone (portrait orientation)
+
+### Features
+
+- **3D Text Rendering** - Japanese text variations rendered with Three.js
+- **State Management** - Zustand with immer for immutable updates
+- **Error Handling** - neverthrow for railway-oriented programming
+- **Post-processing Effects** - Dynamic visual effects driven by game state:
+  - **Vignette** - Focus attention on center, increases with item stack count
+  - **Bloom** - Glowing white text, pulses on successful classification
+  - **Noise/Grain** - Film grain that increases with fall speed (difficulty)
+  - **Chromatic Aberration** - RGB separation effect, spikes on rule changes
+  - **Depth of Field** - Blur background items when stack grows (3+ items)
+  - **Glitch** - Digital corruption effect on game over
+
+### Post-processing Implementation
+
+Visual effects are implemented in `app/components/Effects.tsx` using `@react-three/postprocessing`:
+
+- **State-driven intensities**: Effects respond to `activeItems.length`, `fallSpeed`, `score`, and `gamePhase`
+- **Dynamic triggers**: Bloom pulse and chromatic aberration spike on successful classification
+- **Game over effect**: Glitch effect triggers when game ends
+- **Performance optimization**: Conditional DepthOfField (only when 3+ items stacked)
+
 ## Getting Started
 
 First, run the development server:
