@@ -12,14 +12,11 @@ import { BlendFunction, GlitchMode } from 'postprocessing';
 import { useGameStore, type GamePhase } from '@/app/stores/gameStore';
 
 export function Effects() {
-  const gamePhase = useGameStore((state) => state.gamePhase) as GamePhase;
-  const activeItemsCount = useGameStore((state) => state.activeItems.length) as number;
-  const fallSpeed = useGameStore((state) => state.fallSpeed) as number;
-  const score = useGameStore((state) => state.score) as number;
-  
-  // Refs for animated values
-  const chromaAberrationRef = useRef<any>(null);
-  const bloomRef = useRef<any>(null);
+  // Subscribe to minimal state slices to avoid cyclic references
+  const gamePhase = useGameStore((state) => state.gamePhase);
+  const activeItemsCount = useGameStore((state) => state.activeItems.length);
+  const fallSpeed = useGameStore((state) => state.fallSpeed);
+  const score = useGameStore((state) => state.score);
   
   // State for dynamic effect triggers
   const [glitchActive, setGlitchActive] = useState(false);
@@ -27,8 +24,8 @@ export function Effects() {
   const [bloomPulse, setBloomPulse] = useState(0);
   
   // Previous values for change detection
-  const prevScoreRef = useRef(score);
-  const prevPhaseRef = useRef(gamePhase);
+  const prevScoreRef = useRef(0);
+  const prevPhaseRef = useRef<GamePhase>('start');
   
   // Calculate vignette intensity based on stack count
   // More items = darker vignette = more visual stress
@@ -119,7 +116,6 @@ export function Effects() {
         
         {/* Bloom - Glow on white text, pulses on successful classification */}
         <Bloom
-          ref={bloomRef}
           intensity={bloomIntensity}
           luminanceThreshold={0.5}
           luminanceSmoothing={0.9}
@@ -136,7 +132,6 @@ export function Effects() {
         {/* Chromatic Aberration - RGB separation for "breakdown" feel */}
         {/* Increases with fall speed, spikes on rule changes */}
         <ChromaticAberration
-          ref={chromaAberrationRef}
           offset={[chromaOffsetValue, chromaOffsetValue] as any}
           blendFunction={BlendFunction.NORMAL}
         />
