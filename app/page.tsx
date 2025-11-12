@@ -6,25 +6,27 @@
 
 'use client';
 
-import { useMemo } from 'react';
-import { Canvas } from '@react-three/fiber';
-import GameScene from './components/GameScene';
+import dynamic from 'next/dynamic';
 import GameUI from './components/GameUI';
 import SwipeHandler from './components/SwipeHandler';
 import GameLoop from './game/loop';
 
+// Dynamically import Canvas and GameScene to avoid SSR issues
+const Canvas = dynamic(
+  () => import('@react-three/fiber').then((mod) => mod.Canvas),
+  { ssr: false }
+);
+
+const GameScene = dynamic(() => import('./components/GameScene'), {
+  ssr: false,
+});
+
 export default function Home() {
-  // Memoize Canvas props to prevent recreating objects on every render
-  const glProps = useMemo(() => ({ antialias: true, alpha: false }), []);
-  const dprRange = useMemo(() => [1, 2] as [number, number], []);
-  
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black">
       {/* Three.js Canvas - Full screen portrait */}
       <Canvas
         className="absolute inset-0"
-        gl={glProps}
-        dpr={dprRange}
       >
         <GameScene />
       </Canvas>

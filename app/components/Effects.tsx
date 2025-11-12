@@ -10,13 +10,13 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { EffectComposer, Vignette, Bloom, Noise, ChromaticAberration, DepthOfField, Glitch } from '@react-three/postprocessing';
 import { BlendFunction, GlitchMode } from 'postprocessing';
 import { Vector2 } from 'three';
-import { useGameStore } from '@/app/stores/gameStore';
+import { useGameStore, type GamePhase } from '@/app/stores/gameStore';
 
 export function Effects() {
-  const gamePhase = useGameStore((state: any) => state.gamePhase);
-  const activeItemsCount = useGameStore((state: any) => state.activeItems.length);
-  const fallSpeed = useGameStore((state: any) => state.fallSpeed);
-  const score = useGameStore((state: any) => state.score);
+  const gamePhase = useGameStore((state) => state.gamePhase) as GamePhase;
+  const activeItemsCount = useGameStore((state) => state.activeItems.length) as number;
+  const fallSpeed = useGameStore((state) => state.fallSpeed) as number;
+  const score = useGameStore((state) => state.score) as number;
   
   // Refs for animated values
   const chromaAberrationRef = useRef<any>(null);
@@ -43,10 +43,14 @@ export function Effects() {
   // Base chromatic aberration from fall speed
   const baseChromaOffset = 0.0005 + ((fallSpeed - 1.0) / 2.0) * 0.0015; // 0.0005 to 0.002
   
+  // Calculate final chroma offset values
+  const chromaOffsetX = baseChromaOffset + chromaSpike;
+  const chromaOffsetY = baseChromaOffset + chromaSpike;
+  
   // Memoize Vector2 instances to prevent recreating on every render
   const chromaOffset = useMemo(
-    () => new Vector2(baseChromaOffset + chromaSpike, baseChromaOffset + chromaSpike),
-    [baseChromaOffset, chromaSpike]
+    () => new Vector2(chromaOffsetX, chromaOffsetY),
+    [chromaOffsetX, chromaOffsetY]
   );
   
   const glitchDelay = useMemo(() => new Vector2(0.5, 1.0), []);
