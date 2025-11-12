@@ -37,6 +37,7 @@ export interface GameState {
   // Current rule
   correctVariation: ItemVariation | null;
   correctDirection: Direction | null;
+  wrongVariations: ItemVariation[];
   nextRuleChangeScore: number;
   ruleChangeTime: number; // Timestamp when rule will change
   ruleDuration: number; // Duration in ms until next rule change
@@ -64,6 +65,7 @@ export const useGameStore = create<GameState>()(
     gameOverMessage: '',
     correctVariation: null,
     correctDirection: null,
+    wrongVariations: [],
     nextRuleChangeScore: 0,
     ruleChangeTime: 0,
     ruleDuration: INITIAL_RULE_DURATION,
@@ -84,6 +86,7 @@ export const useGameStore = create<GameState>()(
         state.gameOverMessage = '';
         state.correctVariation = rule.correctVariation;
         state.correctDirection = rule.correctDirection;
+        state.wrongVariations = rule.wrongVariations;
         state.nextRuleChangeScore = getNextRuleChangeInterval(0);
         state.ruleDuration = INITIAL_RULE_DURATION;
         state.ruleChangeTime = now + INITIAL_RULE_DURATION;
@@ -152,6 +155,7 @@ export const useGameStore = create<GameState>()(
         {
           correctVariation: state.correctVariation!,
           correctDirection: state.correctDirection!,
+          wrongVariations: state.wrongVariations,
         }
       );
       
@@ -174,6 +178,7 @@ export const useGameStore = create<GameState>()(
         set((draft) => {
           draft.correctVariation = newRule.correctVariation;
           draft.correctDirection = newRule.correctDirection;
+          draft.wrongVariations = newRule.wrongVariations;
           draft.ruleDuration = newDuration;
           draft.ruleChangeTime = now + newDuration;
         });
@@ -207,6 +212,7 @@ export const useGameStore = create<GameState>()(
         set((draft) => {
           draft.correctVariation = newRule.correctVariation;
           draft.correctDirection = newRule.correctDirection;
+          draft.wrongVariations = newRule.wrongVariations;
           draft.ruleDuration = newDuration;
           draft.ruleChangeTime = now + newDuration;
         });
@@ -222,6 +228,7 @@ export const useGameStore = create<GameState>()(
         set((draft) => {
           draft.correctVariation = newRule.correctVariation;
           draft.correctDirection = newRule.correctDirection;
+          draft.wrongVariations = newRule.wrongVariations;
           draft.nextRuleChangeScore = state.score + newInterval;
           draft.ruleDuration = newDuration;
           draft.ruleChangeTime = now + newDuration;
