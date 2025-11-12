@@ -12,9 +12,9 @@ import { Text } from '@react-three/drei';
 import type { GameItem } from '@/app/data/items';
 import type { Direction } from '@/app/game/rules';
 
-const BOTTOM_Y = -3; // Bottom position where items stack
-const Y_OFFSET = 0.2; // Y-axis offset between stacked items
-const FALL_SPEED = 0.05; // Speed of falling animation
+const BOTTOM_Y = -2; // Bottom position where items stack
+const Y_OFFSET = 0.3; // Y-axis offset between stacked items
+const FALL_SPEED = 0.03; // Speed of falling animation
 const SWIPE_SPEED = 0.15; // Speed of swipe-away animation
 const SWIPE_DISTANCE = 10; // How far items fly when swiped
 
@@ -35,7 +35,7 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
   // Initialize position above screen
   useEffect(() => {
     if (meshRef.current) {
-      meshRef.current.position.y = 5;
+      meshRef.current.position.y = 4;
       meshRef.current.position.x = 0;
       meshRef.current.position.z = 0;
     }
@@ -90,13 +90,12 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
   return (
     <Text
       ref={meshRef}
-      fontSize={0.5}
-      color="white"
+      fontSize={0.8}
+      color="#ffffff"
       anchorX="center"
       anchorY="middle"
-      outlineWidth={0.02}
-      outlineColor="black"
-      font="/fonts/NotoSansJP-Regular.ttf" // We'll need to add this font
+      outlineWidth={0.05}
+      outlineColor="#000000"
       material-transparent={true}
       material-opacity={1}
     >

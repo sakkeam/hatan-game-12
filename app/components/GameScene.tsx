@@ -27,12 +27,12 @@ export default function GameScene() {
         ref={cameraRef}
         makeDefault
         position={[0, 0, 10]}
-        zoom={100}
+        zoom={50}
       />
 
       {/* Ambient lighting */}
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[5, 5, 5]} intensity={0.5} />
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[0, 0, 10]} intensity={1.0} />
 
       {/* Render all active items with stacking */}
       {activeItems.map((item, index) => (
