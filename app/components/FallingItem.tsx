@@ -1,7 +1,7 @@
 /**
  * はたんゲーム 12 - Falling Item Component
  * 
- * 3D text component with falling and swipe animations
+ * 3D text component with physics-based falling and mountain stacking
  */
 
 'use client';
@@ -9,99 +9,76 @@
 import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
+import { RigidBody, type RapierRigidBody } from '@react-three/rapier';
 import type { GameItem } from '@/app/data/items';
 import type { Direction } from '@/app/game/rules';
 import { useGameStore } from '@/app/stores/gameStore';
 
-const BOTTOM_Y = -3; // Bottom position where items stack
-const Y_OFFSET = 0.3; // Y-axis offset between stacked items (positive = upward)
-const BASE_FALL_SPEED = 0.1; // Base speed of falling animation
-const SWIPE_SPEED = 0.15; // Speed of swipe-away animation
-const SWIPE_DISTANCE = 10; // How far items fly when swiped
+const SPAWN_HEIGHT = 8; // Height above ground where items spawn
+const SWIPE_IMPULSE = 20; // Force applied when swiping items away
+const ITEM_MASS = 1; // Mass of each text item
 
 interface FallingItemProps {
   item: GameItem;
-  stackIndex: number; // Position in stack (0 = bottom)
+  stackIndex: number;
   totalItems: number;
 }
 
 export default function FallingItem({ item, stackIndex, totalItems }: FallingItemProps) {
-  const meshRef = useRef<any>(null);
-  const [isFalling, setIsFalling] = useState(true);
-  const [swipeDirection, setSwipeDirection] = useState<Direction | null>(null);
-  const fallSpeed = useGameStore((state) => state.fallSpeed) as number;
+  const rigidBodyRef = useRef<RapierRigidBody>(null);
+  const textRef = useRef<any>(null);
+  const [opacity, setOpacity] = useState(1);
   
-  // Calculate target Y position - stackIndex 0 is bottom, higher index goes up
-  const targetY = BOTTOM_Y + (stackIndex * Y_OFFSET);
+  // Watch for swipe command from store
+  const swipedItemId = useGameStore((state) => state.swipedItemId);
+  const swipeDirection = useGameStore((state) => state.swipeDirection);
+  const shouldSwipe = swipedItemId === item.id;
   
-  // Initialize position above screen
+  // Apply swipe impulse when this item is targeted
   useEffect(() => {
-    if (meshRef.current) {
-      meshRef.current.position.y = 6;
-      meshRef.current.position.x = 0;
-      meshRef.current.position.z = 0;
-    }
-  }, []);
-
-  useFrame(() => {
-    if (!meshRef.current) return;
-
-    if (swipeDirection) {
-      // Swipe-away animation
+    if (shouldSwipe && swipeDirection && rigidBodyRef.current) {
       const direction = swipeDirection === 'left' ? -1 : 1;
-      meshRef.current.position.x += direction * SWIPE_SPEED;
-      meshRef.current.position.y += SWIPE_SPEED * 0.5; // Slight upward arc
-      meshRef.current.rotation.z += direction * 0.05; // Rotate while flying
+      const impulse = { x: direction * SWIPE_IMPULSE, y: SWIPE_IMPULSE * 0.5, z: 0 };
+      const torqueImpulse = { x: 0, y: 0, z: direction * 5 };
       
-      // Fade out
-      if (meshRef.current.material) {
-        meshRef.current.material.opacity = Math.max(
-          0,
-          meshRef.current.material.opacity - 0.02
-        );
-      }
-    } else if (isFalling) {
-      // Falling animation
-      const currentY = meshRef.current.position.y;
-      
-      if (currentY > targetY) {
-        meshRef.current.position.y -= BASE_FALL_SPEED * fallSpeed;
-      } else {
-        meshRef.current.position.y = targetY;
-        setIsFalling(false);
-      }
-    } else {
-      // Stack animation - smoothly move to new position when items below are removed
-      const currentY = meshRef.current.position.y;
-      const diff = targetY - currentY;
-      
-      if (Math.abs(diff) > 0.01) {
-        meshRef.current.position.y += diff * 0.1; // Smooth interpolation
-      } else {
-        meshRef.current.position.y = targetY;
-      }
+      rigidBodyRef.current.applyImpulse(impulse, true);
+      rigidBodyRef.current.applyTorqueImpulse(torqueImpulse, true);
+    }
+  }, [shouldSwipe, swipeDirection]);
+
+  // Fade out when swiped
+  useFrame(() => {
+    if (shouldSwipe && opacity > 0) {
+      setOpacity((prev) => Math.max(0, prev - 0.02));
     }
   });
 
-  // Expose swipe method for external triggering
-  useEffect(() => {
-    // This would be called from the game loop when item is classified
-    // For now, we'll handle it through props updates
-  }, []);
+  // Random small offset for natural mountain formation
+  const spawnX = (Math.random() - 0.5) * 0.5;
+  const spawnZ = (Math.random() - 0.5) * 0.5;
 
   return (
-    <Text
-      ref={meshRef}
-      fontSize={0.8}
-      color="#ffffff"
-      anchorX="center"
-      anchorY="middle"
-      outlineWidth={0.05}
-      outlineColor="#000000"
-      material-transparent={true}
-      material-opacity={1}
+    <RigidBody
+      ref={rigidBodyRef}
+      position={[spawnX, SPAWN_HEIGHT, spawnZ]}
+      mass={ITEM_MASS}
+      colliders="cuboid"
+      restitution={0.3}
+      friction={0.8}
     >
-      {item.text}
-    </Text>
+      <Text
+        ref={textRef}
+        fontSize={0.8}
+        color="#ffffff"
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.05}
+        outlineColor="#000000"
+        material-transparent={true}
+        material-opacity={opacity}
+      >
+        {item.text}
+      </Text>
+    </RigidBody>
   );
 }
