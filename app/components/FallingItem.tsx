@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { RigidBody, type RapierRigidBody } from '@react-three/rapier';
@@ -53,14 +53,17 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
     }
   });
 
-  // Random small offset for natural mountain formation
-  const spawnX = (Math.random() - 0.5) * 0.5;
-  const spawnZ = (Math.random() - 0.5) * 0.5;
+  // Random small offset for natural mountain formation (memoized to prevent repositioning)
+  const spawnPosition = useMemo(() => {
+    const spawnX = (Math.random() - 0.5) * 0.5;
+    const spawnZ = (Math.random() - 0.5) * 0.5;
+    return [spawnX, SPAWN_HEIGHT, spawnZ] as [number, number, number];
+  }, []);
 
   return (
     <RigidBody
       ref={rigidBodyRef}
-      position={[spawnX, SPAWN_HEIGHT, spawnZ]}
+      position={spawnPosition}
       mass={ITEM_MASS}
       restitution={0.3}
       friction={0.8}
