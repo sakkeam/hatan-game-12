@@ -21,6 +21,8 @@ export type GamePhase = 'start' | 'playing' | 'gameover';
 export type GameOverReason = 'wrong' | 'overflow' | null;
 
 const MAX_ITEMS = 10;
+const INITIAL_RULE_DURATION = 15000; // 15 seconds in ms
+const MIN_RULE_DURATION = 5000; // 5 seconds minimum
 
 export interface GameState {
   // Game state
@@ -36,6 +38,8 @@ export interface GameState {
   correctVariation: ItemVariation | null;
   correctDirection: Direction | null;
   nextRuleChangeScore: number;
+  ruleChangeTime: number; // Timestamp when rule will change
+  ruleDuration: number; // Duration in ms until next rule change
   
   // Timing
   spawnInterval: number;
@@ -61,6 +65,8 @@ export const useGameStore = create<GameState>()(
     correctVariation: null,
     correctDirection: null,
     nextRuleChangeScore: 0,
+    ruleChangeTime: 0,
+    ruleDuration: INITIAL_RULE_DURATION,
     spawnInterval: 2000,
     lastSpawnTime: 0,
 
@@ -70,6 +76,7 @@ export const useGameStore = create<GameState>()(
     startGame: () => {
       set((state) => {
         const rule = randomizeRule();
+        const now = Date.now();
         state.gamePhase = 'playing';
         state.score = 0;
         state.activeItems = [];
@@ -78,8 +85,10 @@ export const useGameStore = create<GameState>()(
         state.correctVariation = rule.correctVariation;
         state.correctDirection = rule.correctDirection;
         state.nextRuleChangeScore = getNextRuleChangeInterval(0);
+        state.ruleDuration = INITIAL_RULE_DURATION;
+        state.ruleChangeTime = now + INITIAL_RULE_DURATION;
         state.spawnInterval = 2000;
-        state.lastSpawnTime = Date.now();
+        state.lastSpawnTime = now;
       });
     },
 
@@ -174,19 +183,39 @@ export const useGameStore = create<GameState>()(
     },
 
     /**
-     * Check if score has reached rule change threshold
+     * Check if score has reached rule change threshold or timer expired
      */
     checkRuleChange: () => {
       const state = get();
+      const now = Date.now();
       
+      // Check timer-based rule change
+      if (now >= state.ruleChangeTime) {
+        const newRule = randomizeRule();
+        // Decrease duration based on score (faster changes at higher scores)
+        const newDuration = Math.max(MIN_RULE_DURATION, INITIAL_RULE_DURATION - Math.floor(state.score / 10) * 500);
+        
+        set((draft) => {
+          draft.correctVariation = newRule.correctVariation;
+          draft.correctDirection = newRule.correctDirection;
+          draft.ruleDuration = newDuration;
+          draft.ruleChangeTime = now + newDuration;
+        });
+      }
+      
+      // Also check score-based rule change (kept for backwards compatibility)
       if (state.score >= state.nextRuleChangeScore) {
         const newRule = randomizeRule();
         const newInterval = getNextRuleChangeInterval(state.score);
+        const newDuration = Math.max(MIN_RULE_DURATION, INITIAL_RULE_DURATION - Math.floor(state.score / 10) * 500);
+        const now = Date.now();
         
         set((draft) => {
           draft.correctVariation = newRule.correctVariation;
           draft.correctDirection = newRule.correctDirection;
           draft.nextRuleChangeScore = state.score + newInterval;
+          draft.ruleDuration = newDuration;
+          draft.ruleChangeTime = now + newDuration;
         });
       }
     },
