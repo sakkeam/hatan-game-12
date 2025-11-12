@@ -29,8 +29,9 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
   const [isFalling, setIsFalling] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<Direction | null>(null);
   
-  // Calculate target Y position based on stack index
-  const targetY = BOTTOM_Y - (stackIndex * Y_OFFSET);
+  // Calculate target Y position based on stack index (reverse order - higher index = higher position)
+  const reverseIndex = totalItems - 1 - stackIndex;
+  const targetY = BOTTOM_Y + (reverseIndex * Y_OFFSET);
   
   // Initialize position above screen
   useEffect(() => {
