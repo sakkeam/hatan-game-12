@@ -62,10 +62,13 @@ export default function FallingItem({ item, stackIndex, totalItems }: FallingIte
       ref={rigidBodyRef}
       position={[spawnX, SPAWN_HEIGHT, spawnZ]}
       mass={ITEM_MASS}
-      colliders="cuboid"
       restitution={0.3}
       friction={0.8}
     >
+      <mesh>
+        <boxGeometry args={[1.5, 1, 0.2]} />
+        <meshStandardMaterial visible={false} />
+      </mesh>
       <Text
         ref={textRef}
         fontSize={0.8}
